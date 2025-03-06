@@ -13,7 +13,7 @@ export default async function HomePage({ searchParams }) {
     return (
       <Suspense
         fallback={
-          <div className='flex justify-center items-center my-auto'>
+          <div className='flex flex-col justify-center items-center my-auto'>
             <Spinner />
           </div>
         }
