@@ -1,4 +1,3 @@
-// app/page.js (or your page component file)
 import React, { Suspense } from "react";
 import { fetchCardList } from "@/services/api";
 import Home from "@/components/Home";
