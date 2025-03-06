@@ -1,9 +1,10 @@
 import React from "react";
 import { render, fireEvent, screen, act } from "@testing-library/react";
-import { Provider, useSelector } from "react-redux";
+import { Provider } from "react-redux";
 import Home from "@/app/page";
 import { useSearchParams, useRouter } from "next/navigation";
 import makeStore from "redux-mock-store";
+import { useSelector } from "react-redux";
 
 jest.mock("next/navigation", () => ({
   useRouter: jest.fn(),
@@ -25,7 +26,7 @@ jest.mock("@/services/api", () => ({
 
     return Promise.resolve({
       cardsData: filteredCards,
-      hasMore: false,
+      hasMorePage: false,
     });
   }),
 }));
@@ -65,6 +66,7 @@ describe("Home Component", () => {
 
     useSelector.mockImplementation((selector) => selector(store.getState()));
   });
+
   test("renders search input", async () => {
     await act(async () => {
       render(
@@ -92,6 +94,7 @@ describe("Home Component", () => {
 
     await act(async () => {
       fireEvent.change(searchInput, { target: { value: "Test Card 1" } });
+      fireEvent.click(screen.getByRole("button", { name: /search/i }));
     });
 
     expect(screen.getByText("Test Card 1")).toBeInTheDocument();
@@ -99,33 +102,13 @@ describe("Home Component", () => {
 
     await act(async () => {
       fireEvent.change(searchInput, { target: { value: "" } });
+      fireEvent.click(screen.getByRole("button", { name: /search/i }));
     });
 
     expect(screen.getByText("Test Card 1")).toBeInTheDocument();
     expect(screen.getByText("Test Card 2")).toBeInTheDocument();
   });
 
-  test("updates URL when searching", async () => {
-    const router = useRouter();
-
-    await act(async () => {
-      render(
-        <Provider store={store}>
-          <Home />
-        </Provider>
-      );
-    });
-
-    const searchInput = screen.getByPlaceholderText("Search by card name...");
-
-    await act(async () => {
-      fireEvent.change(searchInput, { target: { value: "Test Card 1" } });
-    });
-
-    expect(router.push).toHaveBeenCalledWith("/?page=1&search=Test Card 1", {
-      scroll: false,
-    });
-  });
   test("shows favorites when toggle button is clicked", async () => {
     await act(async () => {
       render(

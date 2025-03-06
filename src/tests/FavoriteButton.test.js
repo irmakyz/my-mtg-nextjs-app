@@ -30,15 +30,12 @@ test("toggles favorite state and updates store", () => {
   const button = getByRole("button");
   const favoritesDiv = getByTestId("favorites");
 
-  // Initial state: card is not in favorites
   expect(favoritesDiv.textContent).toBe("{}");
 
-  // Click to add to favorites
   fireEvent.click(button);
   expect(button.querySelector("svg")).toHaveClass("text-red-500");
   expect(favoritesDiv.textContent).toBe(JSON.stringify({ [card.id]: card }));
 
-  // Click to remove from favorites
   fireEvent.click(button);
   expect(button.querySelector("svg")).toHaveClass("text-gray-400");
   expect(favoritesDiv.textContent).toBe("{}");
