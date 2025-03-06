@@ -42,9 +42,9 @@ The application fetches card data from the Magic The Gathering API. The `fetchCa
 
 Lazy loading is implemented to load components only when they are needed, which reduces the initial bundle size and speeds up the initial load of the application. In this project, components like `CardItem` are lazy-loaded to improve the performance of the page. By only loading the necessary components when they are required (for example, when they come into the viewport), the application can handle large lists or grids without negatively impacting the initial loading time.
 
-### Server-Side Rendering (SSR) of Card Details Page
+### Server-Side Rendering (SSR)
 
-Server-side rendering (SSR) is used for the card details page to pre-render content on the server. This improves the time-to-first-byte (TTFB) and ensures that the content is available to search engines, which is critical for SEO. By fetching card details on the server, the page is delivered as fully rendered HTML, reducing the need for JavaScript to render the page on the client side. This leads to faster load times and improved SEO for content that relies on external data.
+Server-side rendering (SSR) is used for the pages to pre-render content on the server. This improves the time-to-first-byte (TTFB) and ensures that the content is available to search engines, which is critical for SEO. By fetching card details and list on the server, the page is delivered as fully rendered HTML, reducing the need for JavaScript to render the page on the client side. This leads to faster load times and improved SEO for content that relies on external data.
 
 ### Memoization 
 
