@@ -56,6 +56,9 @@ Memoization is applied to components to avoid unnecessary re-renders. React’s 
 
 ---
 
+## Duration
+The development duration of this project is in total 1 day.
+
 ## Running Tests
 
 To run the tests, use the following command:
