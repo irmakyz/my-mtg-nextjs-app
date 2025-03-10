@@ -1,6 +1,6 @@
 import React from 'react';
 import { render } from '@testing-library/react';
-import CardItem from '@/components/CardItem.js';
+import CardItem from '@/components/CardItem';
 import { COLOR_IDENTITIES } from '@/constants';
 
 const card = {
