@@ -1,15 +1,12 @@
 import React, { useCallback } from "react";
-import { useRouter } from "next/navigation";
 
-export default function Pagination({ page, hasMore, searchTerm, setPage }) {
-  const router = useRouter();
+export default function Pagination({ page, hasMore, setPage }) {
 
   const handlePageChange = useCallback(
     (newPage) => {
       setPage(newPage);
-      router.push(`/?page=${newPage}&search=${searchTerm}`, { scroll: false });
     },
-    [router, searchTerm, setPage]
+    [ setPage]
   );
 
   return (

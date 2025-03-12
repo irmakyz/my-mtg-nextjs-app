@@ -1,34 +1,39 @@
 "use client";
-import React, { useState, Suspense, lazy, useMemo } from "react";
+import React, {
+  useState,
+  Suspense,
+  lazy,
+  useMemo,
+} from "react";
 import { useSelector } from "react-redux";
+import { fetchCardList } from "@/services/api";
 
 import Pagination from "@/components/Pagination";
 import Spinner from "@/components/Spinner";
 import { selectFavorites } from "@/features/favorites/favoritesSlice";
 import Search from "@/components/Search";
+import { useQuery } from "@tanstack/react-query";
 const CardItem = lazy(() => import("@/components/CardItem"));
 
-export default function Home({
-  cards,
-  initialPage,
-  initialSearchTerm,
-  initialHasMore,
-}) {
-  const [page, setPage] = useState(initialPage);
-  const [searchTerm, setSearchTerm] = useState(initialSearchTerm);
+export default function Home({ initialCards, initialHasMore }) {
+  const [page, setPage] = useState(1);
+  const [searchTerm, setSearchTerm] = useState("");
   const [hasMore, setHasMore] = useState(initialHasMore);
   const [showFavorites, setShowFavorites] = useState(false);
-
   const favorites = useSelector(selectFavorites);
 
-  const toggleFavorites = () => {
-    setShowFavorites((prev) => !prev);
-  };
+  const { data, isLoading, error, hasMorePage } = useQuery({
+    queryKey: ["cards", page, searchTerm],
+    queryFn: () => fetchCardList(page, searchTerm),
+    initialData: { cardsData: initialCards, hasMorePage: initialHasMore }, 
+    staleTime: 0, 
+    keepPreviousData: true, 
+  });
 
   const visibleCards = useMemo(() => {
     if (!showFavorites) {
-      setHasMore(initialHasMore);
-      return cards;
+      setHasMore(hasMorePage);
+      return data?.cardsData;
     }
 
     const filteredFavoriteCards = searchTerm
@@ -42,7 +47,25 @@ export default function Home({
     setHasMore(endIndex < filteredFavoriteCards.length);
 
     return filteredFavoriteCards.slice(startIndex, endIndex);
-  }, [showFavorites, cards, favorites, searchTerm, page, initialHasMore]);
+  }, [showFavorites, data, favorites, searchTerm, page]);
+
+  const toggleFavorites = () => {
+    setShowFavorites((prev) => !prev);
+  };
+
+  if (isLoading)
+    return (
+      <div className='flex justify-center items-center h-full my-auto'>
+        <Spinner />
+      </div>
+    );
+
+  if (error)
+    return (
+      <p className='text-center text-red-600 text-3xl my-auto'>
+        Failed to load cards
+      </p>
+    );
 
   return (
     <>
@@ -77,12 +100,7 @@ export default function Home({
             <CardItem key={card.id} card={card} />
           ))}
         </div>
-        <Pagination
-          page={page}
-          hasMore={hasMore}
-          searchTerm={searchTerm}
-          setPage={setPage}
-        />
+        <Pagination page={page} hasMore={hasMore} setPage={setPage} />
       </Suspense>
     </>
   );

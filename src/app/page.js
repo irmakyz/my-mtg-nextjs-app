@@ -1,15 +1,13 @@
-import React, { Suspense } from "react";
+import React, { lazy, Suspense } from "react";
 import { fetchCardList } from "@/services/api";
-import Home from "@/components/Home";
 import Spinner from "@/components/Spinner";
 
-export default async function HomePage({ searchParams }) {
-  const params = await searchParams;
-  const page =  Number(params?.page) || 1;
-  const searchTerm =  params?.search || "";
+const Home = lazy(() => import("@/components/Home"));
+
+export default async function HomePage() {
 
   try {
-    const { cardsData, hasMorePage } = await fetchCardList(page, searchTerm);
+    const { cardsData, hasMorePage } = await fetchCardList(1, "");
     return (
       <Suspense
         fallback={
@@ -19,9 +17,7 @@ export default async function HomePage({ searchParams }) {
         }
       >
         <Home
-          cards={cardsData}
-          initialPage={page}
-          initialSearchTerm={searchTerm}
+          initialCards={cardsData}
           initialHasMore={hasMorePage}
         />
       </Suspense>

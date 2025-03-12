@@ -46,6 +46,9 @@ Lazy loading is implemented to load components only when they are needed, which 
 
 Server-side rendering (SSR) is used for the pages to pre-render content on the server. This improves the time-to-first-byte (TTFB) and ensures that the content is available to search engines, which is critical for SEO. By fetching card details and list on the server, the page is delivered as fully rendered HTML, reducing the need for JavaScript to render the page on the client side. This leads to faster load times and improved SEO for content that relies on external data.
 
+### Hybrid Approach (SSR + Client-side Rendering)
+In the homepage, since there is user interaction (search), the hybrid approach is used. The initial fetching for the list items in the server side. Since searching and paginating updates state dynamically it makes sense to handle this on the client-side for a smoother experience. So avoid unnecessary server requests and keep the UI responsive.
+
 ### Memoization 
 
 Memoization is applied to components to avoid unnecessary re-renders. React’s `React.memo` helps optimize performance by ensuring that a component is only re-rendered when its props change. In a list of items (like cards), where the majority of the components may not need updates, memoization ensures that only the necessary components are re-rendered. This significantly improves performance, especially when rendering large lists or grids of items.

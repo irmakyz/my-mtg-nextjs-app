@@ -3,43 +3,29 @@ import { render, screen, fireEvent, waitFor } from "@testing-library/react";
 import Home from "@/components/Home";
 import { Provider } from "react-redux";
 import createMockStore from "redux-mock-store";
+import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
+import { fetchCardList } from "@/services/api";
+import { act } from "react";
 
-jest.mock("@/components/CardItem", () => {
-  const MockCardItem = ({ card }) => <div>{card.name}</div>;
-  MockCardItem.displayName = "CardItem";
-  return MockCardItem;
-});
+jest.mock("@/services/api", () => ({
+  fetchCardList: jest.fn((page, searchTerm) => {
+    return Promise.resolve({
+      cardsData: searchTerm
+        ? mockCards.filter((card) => card.name.includes(searchTerm))
+        : mockCards,
+      hasMorePage: false,
+    });
+  }),
+}));
 
-jest.mock("@/components/Search", () => {
-  const MockSearch = ({ searchTerm, setSearchTerm, setPage }) => (
-    <input
-      value={searchTerm}
-      onChange={(e) => {
-        setSearchTerm(e.target.value);
-        setPage(1);
-      }}
-      data-testid='search-input'
-    />
-  );
-  MockSearch.displayName = "Search";
-  return MockSearch;
-});
-
-jest.mock("@/components/Pagination", () => {
-  const MockPagination = ({ page, setPage, hasMore }) => (
-    <button onClick={() => setPage(page + 1)} data-testid='pagination-button'>
-      Next
-    </button>
-  );
-  MockPagination.displayName = "Pagination";
-  return MockPagination;
-});
-
-jest.mock("@/components/Spinner", () => {
-  const MockSpinner = () => <div data-testid='spinner'>Loading...</div>;
-  MockSpinner.displayName = "Spinner";
-  return MockSpinner;
-});
+const createTestQueryClient = () =>
+  new QueryClient({
+    defaultOptions: {
+      queries: {
+        retry: false,
+      },
+    },
+  });
 
 const mockStore = createMockStore();
 
@@ -59,16 +45,22 @@ const renderWithProvider = (component) => {
     favorites: mockFavorites,
   });
 
-  return render(<Provider store={store}>{component}</Provider>);
+  const queryClient = createTestQueryClient();
+
+  return render(
+    <Provider store={store}>
+      <QueryClientProvider client={queryClient}>
+        {component}
+      </QueryClientProvider>
+    </Provider>
+  );
 };
 
 describe("Home component", () => {
   it("renders the cards correctly", async () => {
     renderWithProvider(
       <Home
-        cards={mockCards}
-        initialPage={1}
-        initialSearchTerm=''
+        initialCards={mockCards}
         initialHasMore={true}
       />
     );
@@ -83,10 +75,8 @@ describe("Home component", () => {
   it('shows favorites when clicking the "Show Favorites" button', async () => {
     renderWithProvider(
       <Home
-        cards={mockCards}
-        initialPage={1}
+        initialCards={mockCards}
         initialSearchTerm=''
-        initialHasMore={true}
       />
     );
 
@@ -103,5 +93,23 @@ describe("Home component", () => {
       expect(screen.getByText("Card 2")).toBeInTheDocument();
       expect(screen.queryByText("Card 3")).not.toBeInTheDocument();
     });
+  });
+  it("triggers fetch when search term changes", async () => {
+    const { getByPlaceholderText } = renderWithProvider(
+      <Home
+        initialCards={mockCards}
+        initialSearchTerm=''
+      />
+    );
+
+    expect(await screen.findByText("Card 1")).toBeInTheDocument();
+
+    const input = getByPlaceholderText("Search by card name...");
+    await act(async () => {
+      fireEvent.change(input, { target: { value: "Card 1" } });
+      fireEvent.click(screen.getByRole("button", { name: /search/i }));
+    });
+    await waitFor(() => expect(fetchCardList).toHaveBeenCalledWith(1, "Card 1"));
+    expect(await screen.findByText("Card 1")).toBeInTheDocument();
   });
 });

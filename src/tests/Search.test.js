@@ -1,6 +1,5 @@
 import React from "react";
 import { render, fireEvent, act, screen } from "@testing-library/react";
-import { useRouter } from "next/navigation";
 import Search from "@/components/Search";
 
 jest.mock("next/navigation", () => ({
@@ -10,15 +9,10 @@ jest.mock("next/navigation", () => ({
 describe("Search Component", () => {
   let setSearchTerm;
   let setPage;
-  let router;
 
   beforeEach(() => {
     setSearchTerm = jest.fn();
     setPage = jest.fn();
-    router = {
-      push: jest.fn(),
-    };
-    useRouter.mockReturnValue(router);
   });
 
   test("renders Search component with initial value", () => {
@@ -47,8 +41,5 @@ describe("Search Component", () => {
 
     expect(setSearchTerm).toHaveBeenCalledWith("New Search");
     expect(setPage).toHaveBeenCalledWith(1);
-    expect(router.push).toHaveBeenCalledWith("/?page=1&search=New Search", {
-      scroll: false,
-    });
   });
 });

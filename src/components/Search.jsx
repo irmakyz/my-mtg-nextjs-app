@@ -1,8 +1,6 @@
 import React, { useCallback, useState } from "react";
-import { useRouter } from "next/navigation";
 
-export default function Search({ setSearchTerm, setPage, searchTerm }) {
-  const router = useRouter();
+export default function Search({ setSearchTerm, setPage, searchTerm = "" }) {
   const [searchInput, setSearchInput] = useState(searchTerm);
   
   const handleSearchChange = (e) => {
@@ -12,8 +10,7 @@ export default function Search({ setSearchTerm, setPage, searchTerm }) {
   const searchNewValue = useCallback(() => {
     setSearchTerm(searchInput);
     setPage(1);
-    router.push(`/?page=1&search=${searchInput}`, { scroll: false });
-  }, [router, setSearchTerm, setPage, searchInput]);
+  }, [setSearchTerm, setPage, searchInput]);
 
   const handleKeyDown = (e) => {
     if (e.key === "Enter") {
