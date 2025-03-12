@@ -1,10 +1,5 @@
 "use client";
-import React, {
-  useState,
-  Suspense,
-  lazy,
-  useMemo,
-} from "react";
+import React, { useState, Suspense, lazy, useMemo } from "react";
 import { useSelector } from "react-redux";
 import { fetchCardList } from "@/services/api";
 
@@ -22,12 +17,13 @@ export default function Home({ initialCards, initialHasMore }) {
   const [showFavorites, setShowFavorites] = useState(false);
   const favorites = useSelector(selectFavorites);
 
-  const { data, isLoading, error, hasMorePage } = useQuery({
+  const { data, isFetching, error, hasMorePage } = useQuery({
     queryKey: ["cards", page, searchTerm],
     queryFn: () => fetchCardList(page, searchTerm),
-    initialData: { cardsData: initialCards, hasMorePage: initialHasMore }, 
-    staleTime: 0, 
-    keepPreviousData: true, 
+    initialData: { cardsData: initialCards, hasMorePage: initialHasMore },
+    staleTime: 0,
+    keepPreviousData: true,
+    refetchOnWindowFocus: false,
   });
 
   const visibleCards = useMemo(() => {
@@ -53,7 +49,7 @@ export default function Home({ initialCards, initialHasMore }) {
     setShowFavorites((prev) => !prev);
   };
 
-  if (isLoading)
+  if (isFetching)
     return (
       <div className='flex justify-center items-center h-full my-auto'>
         <Spinner />
